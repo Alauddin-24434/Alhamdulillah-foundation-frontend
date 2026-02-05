@@ -6,21 +6,19 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Fix Turbopack warning
-  // experimental: {
-  //   turbopack: false,
-  // },
   async rewrites() {
     const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+
     if (!apiBase) {
-      throw new Error(
-        "❌ NEXT_PUBLIC_API_BASE_URL is not defined! Add it in your .env file."
+      console.warn(
+        '⚠ WARNING: NEXT_PUBLIC_API_BASE_URL is not defined! Rewrites may not work properly.'
       );
     }
+
     return [
       {
-        source: '/:path*',
-        destination: `${apiBase}/:path*`,
+        source: '/api/:path*',
+        destination: apiBase ? `${apiBase}/api/:path*` : '/404', // fallback to 404
       },
     ];
   },
