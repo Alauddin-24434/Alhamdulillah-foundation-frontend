@@ -6,15 +6,24 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  turbopack: false,
+  // Fix Turbopack warning
+  experimental: {
+    turbopack: false,
+  },
   async rewrites() {
-  return [
-    {
-      source: '/:path*',
-      destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`,
-    },
-  ];
-}
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!apiBase) {
+      throw new Error(
+        "❌ NEXT_PUBLIC_API_BASE_URL is not defined! Add it in your .env file."
+      );
+    }
+    return [
+      {
+        source: '/:path*',
+        destination: `${apiBase}/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
