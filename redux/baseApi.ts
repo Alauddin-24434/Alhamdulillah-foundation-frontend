@@ -29,7 +29,7 @@ const mutex = new Mutex();
  * ============================
  */
 const baseQuery = fetchBaseQuery({
-  baseUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
+  baseUrl: `/api`,
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
