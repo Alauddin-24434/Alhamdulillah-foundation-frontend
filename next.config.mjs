@@ -7,9 +7,9 @@ const nextConfig = {
     unoptimized: true,
   },
   // Fix Turbopack warning
-  experimental: {
-    turbopack: false,
-  },
+  // experimental: {
+  //   turbopack: false,
+  // },
   async rewrites() {
     const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
     if (!apiBase) {
