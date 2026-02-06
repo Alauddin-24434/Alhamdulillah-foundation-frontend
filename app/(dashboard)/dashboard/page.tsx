@@ -43,7 +43,8 @@ export default function DashboardPage() {
   const { data: userResponse, isLoading: userLoading, refetch } = useGetMeQuery({});
   const { data: statsResponse, isFetching: statsFetching } = useGetStatsQuery({});
 
-  const user = userResponse?.data?.user || userResponse;
+  const user = userResponse?.data || userResponse;
+  console.log('[DASHBOARD USER]', user);
   const stats = statsResponse?.data;
 
   useEffect(() => {
