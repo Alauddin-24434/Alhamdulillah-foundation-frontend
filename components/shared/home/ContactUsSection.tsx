@@ -42,22 +42,46 @@ export default function ContactUsSection() {
   };
 
   return (
-    <section id="contact" className="py-20 md:py-32 relative overflow-hidden">
+    <section id="contact" className="py-20  relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 -z-10 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
       <div className="absolute bottom-0 left-0 -z-10 w-[300px] h-[300px] bg-amber-500/5 rounded-full blur-[80px]" />
 
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
-        
-           <h2 className="text-4xl md:text-5xl font-black mb-6 bg-gradient-to-r from-primary via-emerald-600 to-amber-500 bg-clip-text text-transparent">
-             {t("contact.title", { defaultValue: "We'd Love to Hear From You" })}
-           </h2>
-           <p className="text-lg text-muted-foreground leading-relaxed">
-             {t("contact.desc", { defaultValue: "Have a question or want to get involved? Reach out to us and we'll get back to you as soon as possible." })}
-           </p>
-        </div>
+   <div
+  className="
+    text-center max-w-3xl mx-auto
+    mb-8 sm:mb-12 md:mb-20
+  "
+>
+  <h2
+    className="
+      font-black
+      text-xl sm:text-2xl md:text-5xl
+      mb-3 sm:mb-4 md:mb-6
+      bg-gradient-to-r from-primary via-emerald-600 to-amber-500
+      bg-clip-text text-transparent
+    "
+  >
+    {t("contact.title", {
+      defaultValue: "We'd Love to Hear From You",
+    })}
+  </h2>
+
+  <p
+    className="
+      text-sm sm:text-base md:text-lg
+      text-muted-foreground
+      leading-relaxed
+    "
+  >
+    {t("contact.desc", {
+      defaultValue:
+        "Have a question or want to get involved? Reach out to us and we'll get back to you as soon as possible.",
+    })}
+  </p>
+</div>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
           
@@ -161,26 +185,3 @@ export default function ContactUsSection() {
   );
 }
 
-/* ---------------- Small Component ---------------- */
-function InfoItem({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div>
-      <div
-        className="h-9 w-9 rounded-lg bg-primary/10
-        flex items-center justify-center text-primary mx-auto mb-2"
-      >
-        {icon}
-      </div>
-      <p className="text-xs font-bold uppercase">{label}</p>
-      <p className="text-[11px] text-foreground/60 mt-1">{value}</p>
-    </div>
-  );
-}

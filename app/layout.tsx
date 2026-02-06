@@ -8,6 +8,7 @@ import { I18nProvider } from "@/components/shared/I18nProvider";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 
 import Script from "next/script";
+import { ToastContainer } from "react-toastify";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -80,6 +81,16 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               {children}
+         {/* 🔔 TOASTER (ONE TIME) */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="colored"
+        />
             </ThemeProvider>
           </I18nProvider>
           <Analytics />
