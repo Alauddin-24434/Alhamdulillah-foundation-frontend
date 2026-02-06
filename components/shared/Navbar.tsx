@@ -52,7 +52,10 @@ export default function Navbar() {
   const handleLogout = async () => {
     await fetch(
       "https://alhamdulillah-foundation-backend.vercel.app/api/auth/logout",
-      { method: "POST", credentials: "include" },
+      {
+        method: "POST",
+        credentials: "include",
+      },
     );
     dispatch(logout());
   };
