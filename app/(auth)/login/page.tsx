@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 
 import { useLoginUserMutation } from "@/redux/features/auth/authApi";
 import { setUser } from "@/redux/features/auth/authSlice";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,11 +42,13 @@ export default function LoginPage() {
           user: res?.data?.user,
           accessToken: res?.data?.accessToken,
         })
-      );
+      );    
+      toast.success(res?.message);
 
       router.push("/dashboard");
     } catch (err: any) {
       setError(err?.data?.message || t("auth.invalid"));
+      toast.error(err?.data?.message || t("auth.invalid"));
     }
   };
 

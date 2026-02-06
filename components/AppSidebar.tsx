@@ -48,6 +48,7 @@ import toast from "react-hot-toast";
 import { useRouter, usePathname } from "next/navigation";
 import baseApi from "@/redux/baseApi";
 import { useEffect } from "react";
+import { useAppLogout } from "@/hooks/useAppLogout";
 
 //======================   SIDEBAR CONFIGURATION   ===============================
 interface SidebarItem {
@@ -151,27 +152,12 @@ interface AppSidebarProps {
 
 //======================   COMPONENT LOGIC   ===============================
 export function AppSidebar({ user }: AppSidebarProps) {
-  const dispatch = useDispatch();
+    const logoutHandler = useAppLogout();
+  
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
-  const [logoutUser] = useLogoutUserMutation();
-
-  const handleLogout = async () => {
-    try {
-      await logoutUser({}).unwrap();
-      dispatch(logout());
-      dispatch(baseApi.util.resetApiState());
-      toast.success(t("sidebar.signOutSuccess") || "Security session terminated successfully");
-      router.push("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-      dispatch(logout());
-      dispatch(baseApi.util.resetApiState());
-      router.push("/login");
-    }
-  };
-
+ 
   const currentAvatar = user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "U")}&background=0D9488&color=fff&bold=true`;
 
   return (
@@ -279,7 +265,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarFooter className="p-3">
         <Button
           variant="outline"
-          onClick={handleLogout}
+          onClick={logoutHandler}
           className="w-full h-11 justify-center gap-2 rounded-xl font-black text-[10px] transition-all duration-500 group border-destructive/30 text-destructive hover:bg-destructive hover:text-white shadow-sm hover:shadow-destructive/20"
         >
           <LogOut className="w-4 h-4 group-hover:rotate-12 transition-transform duration-500" />

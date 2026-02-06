@@ -250,48 +250,49 @@ export default function AdminPaymentsPage() {
          </Card>
       </div>
 
-      <div className="space-y-8">
-        <AFSectionTitle 
-          title="Financial Infrastructure" 
-          subtitle="Real-time transaction monitoring and lifecycle management for all incoming contributions."
-          badge="Audit Stream"
-        />
+   <div className="space-y-8">
+  <AFSectionTitle 
+    title="Financial Infrastructure" 
+    subtitle="Real-time transaction monitoring and lifecycle management for all incoming contributions."
+    badge="Audit Stream"
+  />
 
-        <div className="rounded-[3rem] overflow-hidden bg-card/30 backdrop-blur-md border border-muted/20 shadow-2xl p-8">
-          {/* Filtering Infrastructure */}
-          <AFSearchFilters
-            searchValue={search}
-            onSearchChange={(val) => {
-              setSearch(val);
-              setPage(1);
-            }}
-            searchPlaceholder="Identify records via phone sequence, contributor hash, or digital trail..."
-            filters={STATUS_TABS}
-            activeFilter={status}
-            onFilterChange={handleStatusChange}
-          />
+  <div className="rounded-[3rem] overflow-hidden bg-card/30 backdrop-blur-md border border-muted/20 shadow-2xl p-4 sm:p-8">
+    {/* Filters */}
+    <AFSearchFilters
+      searchValue={search}
+      onSearchChange={(val) => { setSearch(val); setPage(1); }}
+      searchPlaceholder="Identify records via phone sequence, contributor hash, or digital trail..."
+      filters={STATUS_TABS}
+      activeFilter={status}
+      onFilterChange={handleStatusChange}
+    />
 
-          {/* Data Infrastructure */}
-          <div className="mt-10 rounded-[2rem] overflow-hidden shadow-2xl border border-muted/10 bg-card/50">
-            <AFDataTable
-              columns={columns}
-              data={payments}
-              isLoading={isLoading}
-              emptyMessage="No transaction entities discovered within this sector."
-            />
-          </div>
+    {/* Table */}
+    <div className="mt-8 rounded-[2rem] overflow-x-auto shadow-2xl border border-muted/10 bg-card/50">
+      <AFDataTable
+        columns={columns}
+        data={payments}
+        isLoading={isLoading}
+        emptyMessage="No transaction entities discovered within this sector."
+      />
+    </div>
 
-          {/* Pagination Infrastructure */}
-          <AFPagination 
-             currentPage={page}
-             totalPages={meta.totalPages}
-             onPageChange={(p) => {
-               setPage(p);
-               window.scrollTo({ top: 0, behavior: 'smooth' });
-             }}
-          />
-        </div>
+    {/* Pagination */}
+    <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="text-xs text-muted-foreground">
+        Showing page {page} of {meta.totalPages} ({meta.total} records)
       </div>
+      <div className="flex flex-wrap gap-2">
+        <AFPagination 
+          currentPage={page}
+          totalPages={meta.totalPages}
+          onPageChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+        />
+      </div>
+    </div>
+  </div>
+</div>
 
       {/* Verification Infrastructure */}
       <VerifyPaymentModal

@@ -1,5 +1,4 @@
 "use client";
-import { toast } from "@/components/ui/use-toast";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -15,6 +14,7 @@ import { setUser } from "@/redux/features/auth/authSlice";
 import { z } from "zod";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
 const registerSchema = z
   .object({
@@ -45,46 +45,40 @@ export default function RegisterPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validation = registerSchema.safeParse(formData);
 
-    const validation = registerSchema.safeParse(formData);
+  if (!validation.success) {
+    const firstError =
+      validation.error.errors[0]?.message || "Invalid form data";
+    toast.error(firstError);
+    return;
+  }
 
-    if (!validation.success) {
-      const firstError = validation.error.errors[0]?.message || "Invalid form data";
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: firstError,
-      });
-      return;
-    }
+  try {
+    const res = await signUpUser({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    }).unwrap();
 
-    try {
-      const res = await signUpUser({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      }).unwrap();
+    dispatch(
+      setUser({
+        user: res?.data?.user,
+        accessToken: res?.data?.accessToken,
+      }),
+    );
 
-      dispatch(
-        setUser({
-          user: res?.data?.user,
-          accessToken: res?.data?.accessToken,
-        }),
-      );
+    toast.success(res?.message || "Registration successful 🎉");
 
-    
-      setTimeout(() => router.push("/dashboard/membership"), 2000);
-    } catch (err: any) {
-      toast({
-        variant: "destructive",
-        title: "Registration Failed",
-        description: err?.data?.message || "Something went wrong",
-      });
-    }
-  };
+    // ✅ Immediate redirect (toast will still show)
+    router.push("/dashboard/membership");
+  } catch (err: any) {
+    toast.error(err?.data?.message || "Something went wrong");
+  }
+};
 
  
 
