@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Edit2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
 import { format } from "date-fns";
 
 interface ManagementTableProps {
@@ -46,13 +48,30 @@ export function ManagementTable({
                   className="hover:bg-muted/30 transition-colors"
                 >
                   <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-semibold">
-                        {management.userId?.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {management.userId?.email}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9 border border-border">
+                        <AvatarImage src={management.userId?.avatar} />
+                        <AvatarFallback className="text-xs font-bold">
+                          {(management.name || management.userId?.name || "U")
+                            .substring(0, 2)
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        {management.userId ? (
+                          <Link
+                            href={`/dashboard/users/${management.userId._id}`}
+                            className="font-semibold hover:text-primary transition-colors hover:underline"
+                          >
+                            {management.userId.name}
+                          </Link>
+                        ) : (
+                           <span className="font-semibold">{management.name}</span>
+                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {management.userId?.email || "No Account"}
+                        </span>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>{management.position}</TableCell>

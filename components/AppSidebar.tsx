@@ -23,6 +23,8 @@ import {
   Zap,
   Receipt,
   Globe,
+  Vote,
+  HandHelping,
 } from "lucide-react";
 import {
   Sidebar,
@@ -40,7 +42,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
-import { IUser, logout, UserRole, UserStatus } from "@/redux/features/auth/authSlice";
+import { IUser, logout, UserRole } from "@/redux/features/auth/authSlice";
 import { useLogoutUserMutation } from "@/redux/features/auth/authApi";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -61,7 +63,7 @@ interface SidebarItem {
 
 export const sidebarItems: SidebarItem[] = [
   {
-    title: "Command Center",
+    title: "Dashboard",
     key: "sidebar.commandCenter",
     url: "/dashboard",
     icon: Home,
@@ -75,28 +77,35 @@ export const sidebarItems: SidebarItem[] = [
     roles: [UserRole.USER],
   },
   {
-    title: "Member Directory",
+    title: "Users",
     key: "sidebar.users",
     url: "/dashboard/users",
     icon: Users,
-    roles: [UserRole.SUPER_ADMIN],
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MEMBER],
   },
   {
-    title: "Financial Audit",
+    title: "Transactions",
     key: "sidebar.payments",
     url: "/dashboard/payments",
     icon: CreditCard,
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
-    title: "Foundation Vault",
+    title: "Funds",
     key: "sidebar.funds",
     url: "/dashboard/funds",
     icon: Wallet,
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
-    title: "Monthly Donation",
+    title: "Welfare Fund",
+    key: "sidebar.welfareFund",
+    url: "/dashboard/welfare",
+    icon: HandHelping,
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
+  },
+  {
+    title: "Donations",
     key: "sidebar.donate",
     url: "/dashboard/donate",
     icon: Heart,
@@ -110,35 +119,42 @@ export const sidebarItems: SidebarItem[] = [
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MEMBER, UserRole.USER],
   },
   {
-    title: "Notice Board",
+    title: "Notices",
     key: "sidebar.notices",
     url: "/dashboard/notices",
     icon: Bell,
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
-    title: "Capital Projects",
+    title: "Projects",
     key: "sidebar.projects",
     url: "/dashboard/projects",
     icon: FolderKanban,
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
-    title: "Marketing Assets",
+    title: "Banners",
     key: "sidebar.banners",
     url: "/dashboard/banners",
     icon: ImageIcon,
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
-    title: "Governance Board",
+    title: "Management",
     key: "sidebar.management",
     url: "/dashboard/management",
     icon: ShieldCheck,
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
-    title: "Identity Settings",
+    title: "Votes",
+    key: "sidebar.votes",
+    url: "/dashboard/votes",
+    icon: Vote,
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MEMBER],
+  },
+  {
+    title: "Settings",
     key: "sidebar.settings",
     url: "/dashboard/settings",
     icon: Settings,

@@ -25,12 +25,11 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-
-//==================================================================================
-//                               NOTICE PAGE (RTK QUERY)
-//==================================================================================
+import { useTranslation } from "react-i18next";
 
 export default function NoticePage() {
+  const { t } = useTranslation();
+  
   // ================= STATE =================
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -41,9 +40,7 @@ export default function NoticePage() {
 
   // ================= RTK QUERY =================
   const { data: notices = [], isLoading } = useGetNoticesQuery(undefined);
-
   const [createNotice, { isLoading: creating }] = useCreateNoticeMutation();
-
   const [deleteNotice] = useDeleteNoticeMutation();
 
   // ================= SEARCH FILTER =================
@@ -56,7 +53,7 @@ export default function NoticePage() {
   // ================= PDF UPLOAD =================
   const handlePdfUpload = async (file: File) => {
     setIsUploading(true);
-    const toastId = toast.loading("Uploading PDF...");
+    const toastId = toast.loading(t("common.processing"));
 
     const formData = new FormData();
     formData.append("file", file);
@@ -73,9 +70,9 @@ export default function NoticePage() {
 
       const data = await res.json();
       setFileUrl(data.secure_url);
-      toast.success("PDF uploaded successfully", { id: toastId });
+      toast.success(t("common.success"), { id: toastId });
     } catch {
-      toast.error("PDF upload failed", { id: toastId });
+      toast.error(t("common.error"), { id: toastId });
     } finally {
       setIsUploading(false);
     }
@@ -84,55 +81,58 @@ export default function NoticePage() {
   // ================= CREATE =================
   const handleCreate = async () => {
     if (!title || !fileUrl) {
-      toast.error("Title & PDF required");
+      toast.error(t("notices.noticeTitle") + " & PDF required");
       return;
     }
 
     try {
       await createNotice({ title, fileUrl }).unwrap();
-      toast.success("Notice published");
+      toast.success(t("common.success"));
       setOpen(false);
       setTitle("");
       setFileUrl("");
     } catch {
-      toast.error("Failed to create notice");
+      toast.error(t("common.error"));
     }
   };
 
   // ================= DELETE =================
   const handleDelete = async (id: string) => {
+    if(!confirm(t("users.deleteConfirm"))) return;
+    
     try {
       await deleteNotice(id).unwrap();
-      toast.success("Notice deleted");
+      toast.success(t("notices.deleteNotice") + " " + t("common.success"));
     } catch {
-      toast.error("Delete failed");
+      toast.error(t("common.error"));
     }
   };
 
   // ================= TABLE =================
   const columns = [
     {
-      header: "Title",
+      header: t("notices.noticeTitle"),
       className: "text-center",
       cell: (item: INotice) => <p className="font-semibold">{item.title}</p>,
     },
     {
-      header: "Created",
+      header: t("notices.publishDate"),
       className: "text-center",
       cell: (item: INotice) => new Date(item.createdAt).toLocaleDateString(),
     },
     {
-      header: "Action",
+      header: t("notices.actions"),
       className: "text-center",
       cell: (item: INotice) => (
         <div className="flex justify-center items-center gap-3">
-          <a href={item.fileUrl} target="_blank" className="text-primary">
+          <a href={item.fileUrl} target="_blank" className="text-primary hover:scale-110 transition-transform">
             <ExternalLink size={16} />
           </a>
 
           <Button
             size="icon"
             variant="ghost"
+            className="text-red-500 hover:text-red-600 hover:bg-red-50"
             onClick={() => handleDelete(item._id)}
           >
             <Trash2 size={16} />
@@ -142,16 +142,18 @@ export default function NoticePage() {
     },
   ];
 
-  // ================= RENDER =================
+  function cn(...classes: (string | undefined | false)[]): string {
+    return classes.filter(Boolean).join(" ");
+  }
   return (
     <div className="space-y-6">
       <AFPageHeader
-        title="Notice Board"
-        description="Manage public notices & circulars"
+        title={t("notices.title")}
+        description={t("notices.description")}
         action={
           <Button onClick={() => setOpen(true)} className="cursor-pointer">
-            <Plus className="h-4 w-4 mr-2 " />
-            New Notice
+            <Plus className="h-4 w-4 mr-2" />
+            {t("notices.createNotice")}
           </Button>
         }
       />
@@ -159,28 +161,25 @@ export default function NoticePage() {
         <AFSearchFilters
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search notice..."
+          searchPlaceholder={t("myPayments.searchPlaceholder")}
         />
 
         <AFDataTable
           columns={columns}
           data={filteredNotices}
           isLoading={isLoading}
-          emptyMessage="No notices found"
+          emptyMessage={t("common.noData")}
         />
       </div>
 
-      {/* ================= MODAL ================= */}
-      <AFModal isOpen={open} onOpenChange={setOpen} title="Create Notice">
+      <AFModal isOpen={open} onOpenChange={setOpen} title={t("notices.createNotice")}>
         <div className="space-y-5">
-          {/* TITLE */}
           <Input
-            placeholder="Notice title"
+            placeholder={t("notices.noticeTitle")}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
 
-          {/* BEAUTIFUL PDF UPLOAD */}
           <div className="relative">
             <label className="block">
               <input
@@ -193,12 +192,15 @@ export default function NoticePage() {
                 }}
               />
 
-              <div className="h-32 rounded-xl border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary transition">
+              <div className={cn(
+                "h-32 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition",
+                fileUrl ? "border-emerald-500 bg-emerald-50/50" : "border-muted-foreground/30 hover:border-primary"
+              )}>
                 {!fileUrl && !isUploading && (
                   <>
                     <FileUp className="h-8 w-8 text-muted-foreground" />
                     <p className="text-xs text-muted-foreground font-medium">
-                      Click or drop PDF here
+                      {t("common.processing") === "Processing..." ? "Click or drop PDF here" : "পিডিএফ এখানে ড্রপ করুন"}
                     </p>
                   </>
                 )}
@@ -206,7 +208,7 @@ export default function NoticePage() {
                 {isUploading && (
                   <>
                     <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    <p className="text-xs text-primary">Uploading PDF...</p>
+                    <p className="text-xs text-primary">{t("common.processing")}</p>
                   </>
                 )}
 
@@ -214,7 +216,7 @@ export default function NoticePage() {
                   <>
                     <CheckCircle className="h-7 w-7 text-emerald-500" />
                     <p className="text-xs font-semibold text-emerald-600">
-                      PDF uploaded successfully
+                      {t("common.success")}
                     </p>
                   </>
                 )}
@@ -222,18 +224,16 @@ export default function NoticePage() {
             </label>
           </div>
 
-          {/* ACTIONS */}
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" className="cursor-pointer" onClick={() => setOpen(false)}>
-              Cancel
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              {t("common.cancel")}
             </Button>
 
             <Button
               onClick={handleCreate}
-              className="cursor-pointer"
               disabled={creating || isUploading || !fileUrl}
             >
-              {creating ? "Publishing..." : "Publish"}
+              {creating ? t("common.processing") : t("common.save")}
             </Button>
           </div>
         </div>

@@ -18,6 +18,7 @@ getManagements: builder.query<
     search?: string;
     sortBy?: string;
     sortOrder?: "asc" | "desc";
+    committeeType?: string;
   }
 >({
   query: (params) => ({

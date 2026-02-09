@@ -24,10 +24,12 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const MEMBERSHIP_FEE = 1000;
 
 export default function MembershipActivationPage() {
+  const { t } = useTranslation();
   const [paymentMethod, setPaymentMethod] = useState<string>("SSLCOMMERZ");
   const user = useSelector(selectCurrentUser);
   const router = useRouter();
@@ -45,14 +47,14 @@ export default function MembershipActivationPage() {
           </div>
         </div>
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-black tracking-tight text-foreground">Account Fully Audited</h1>
-          <p className="text-muted-foreground font-medium">Your membership protocol is active and verified by the foundation board.</p>
+          <h1 className="text-3xl font-black tracking-tight text-foreground">{t("membership.alreadyActive")}</h1>
+          <p className="text-muted-foreground font-medium">{t("membership.alreadyActiveDesc")}</p>
         </div>
         <Button 
           onClick={() => router.push("/dashboard")} 
           className="h-14 px-10 rounded-2xl font-black uppercase text-xs tracking-[0.2em] bg-emerald-600 hover:bg-emerald-700 shadow-xl shadow-emerald-600/20 transition-all hover:scale-105 active:scale-95"
         >
-          Return to Hub
+          {t("membership.returnToDashboard")}
         </Button>
       </div>
     );
@@ -72,7 +74,8 @@ export default function MembershipActivationPage() {
 
       if (gatewayUrl) {
         toast.success("Redirecting to secured gateway...", { id: toastId });
-        window.location.href = gatewayUrl;
+        // Use window.location for external redirect, but if it was internal, we'd use router.push
+        window.location.href = gatewayUrl; 
         return;
       }
 
@@ -88,8 +91,8 @@ export default function MembershipActivationPage() {
   return (
     <div className="max-w-[1200px] mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-20">
       <AFPageHeader
-        title="Membership Inauguration"
-        description="Formalize your commitment to the foundation. Verified membership unlocks critical strategic tools and community voting rights."
+        title={t("membership.title")}
+        description={t("membership.description")}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -103,22 +106,22 @@ export default function MembershipActivationPage() {
                 </div>
                 <CardContent className="p-10 space-y-10">
                   <Badge className="bg-emerald-500/20 text-emerald-300 border-none px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest backdrop-blur-md">
-                    Diamond Tier Access
+                    {t("membership.diamondTier")}
                   </Badge>
                   
                   <div className="space-y-4">
-                    <h3 className="text-4xl font-black tracking-tight leading-none">Global Partner</h3>
+                    <h3 className="text-4xl font-black tracking-tight leading-none">{t("membership.globalPartner")}</h3>
                     <p className="text-emerald-100/60 text-sm font-medium leading-relaxed">
-                      Lifetime membership in the Alhamdulillah Foundation ecosystem. Direct influence on strategic community investment.
+                      {t("membership.partnerDesc")}
                     </p>
                   </div>
 
                   <div className="space-y-4">
                     {[
-                      "Strategic Voting Rights",
-                      "Priority Investment Slots",
-                      "Verified Badge Status",
-                      "Certified Impact Reports",
+                      t("membership.votingRights"),
+                      t("membership.prioritySlots"),
+                      t("membership.verifiedBadge"),
+                      t("membership.impactReports"),
                     ].map((perk, i) => (
                       <div key={i} className="flex items-center gap-4 text-sm font-black group/item">
                         <div className="h-7 w-7 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0 group-hover/item:bg-emerald-500/40 transition-colors">
@@ -131,12 +134,12 @@ export default function MembershipActivationPage() {
 
                   <div className="pt-8 border-t border-white/10 flex items-end justify-between">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-1">One-time Assessment</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-1">{t("membership.oneTimeFee")}</p>
                       <div className="flex items-baseline gap-1">
                         <span className="text-4xl font-black">৳1,000</span>
                       </div>
                     </div>
-                    <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 font-black rounded-lg">BDT Currency</Badge>
+                    <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 font-black rounded-lg">{t("membership.currency")}</Badge>
                   </div>
                 </CardContent>
              </Card>
@@ -150,9 +153,9 @@ export default function MembershipActivationPage() {
                <ShieldCheck className="text-primary" size={28} />
             </div>
             <div className="space-y-2 relative">
-              <h4 className="text-sm font-black text-foreground uppercase tracking-widest">Enterprise Security</h4>
+              <h4 className="text-sm font-black text-foreground uppercase tracking-widest">{t("membership.enterpriseSecurity")}</h4>
               <p className="text-xs text-muted-foreground leading-relaxed font-bold">
-                Financial data is processed through industry-leading AES-256 encryption. Our foundation maintains zero-knowledge storage of sensitive card information.
+                {t("membership.securityDesc")}
               </p>
             </div>
           </div>
@@ -162,9 +165,9 @@ export default function MembershipActivationPage() {
         <div className="lg:col-span-7 space-y-8">
            <section className="space-y-6">
               <div className="flex items-center justify-between px-2">
-                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary/60">Select Gateway</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary/60">{t("membership.selectGateway")}</h3>
                 <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
-                  <Lock size={12} /> SECURE CHANNEL
+                  <Lock size={12} /> {t("membership.secureChannel")}
                 </span>
               </div>
 
@@ -187,11 +190,11 @@ export default function MembershipActivationPage() {
                            <Zap size={28} />
                         </div>
                         <div>
-                           <h4 className="font-black text-xl tracking-tight">SSLCommerz</h4>
+                           <h4 className="font-black text-xl tracking-tight">{t("membership.sslCommerz")}</h4>
                            <p className={cn(
                              "text-[10px] font-black uppercase tracking-widest",
                              paymentMethod === "SSLCOMMERZ" ? "text-white/70" : "text-muted-foreground/60"
-                           )}>Bkash, Nagad, Logic</p>
+                           )}>{t("membership.paymentMethods")}</p>
                         </div>
                      </div>
                      <div className={cn(
@@ -206,8 +209,8 @@ export default function MembershipActivationPage() {
               <div className="space-y-4">
                  <div className="flex justify-between items-end border-b border-muted/20 pb-6">
                     <div>
-                       <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">Final Clearance</h4>
-                       <p className="text-xl font-black text-foreground">Membership Certification</p>
+                       <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{t("membership.finalClearance")}</h4>
+                       <p className="text-xl font-black text-foreground">{t("membership.membershipCert")}</p>
                     </div>
                     <div className="text-right">
                        <span className="text-3xl font-black text-primary">৳1,000</span>
@@ -216,12 +219,12 @@ export default function MembershipActivationPage() {
                  
                  <div className="grid grid-cols-2 gap-4 py-4">
                     <div className="space-y-1">
-                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Gateway</p>
+                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">{t("membership.gateway")}</p>
                        <p className="text-xs font-black">{paymentMethod}</p>
                     </div>
                     <div className="text-right space-y-1">
-                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Currency</p>
-                       <p className="text-xs font-black">BDT / Global</p>
+                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">{t("membership.currency")}</p>
+                       <p className="text-xs font-black">BDT</p>
                     </div>
                  </div>
               </div>
@@ -234,18 +237,18 @@ export default function MembershipActivationPage() {
                 {processing ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    Auditing...
+                    {t("membership.processing")}
                   </>
                 ) : (
                   <>
-                    Confirm & Authorize
+                    {t("membership.confirmAuth")}
                     <ArrowRight className="h-5 w-5" />
                   </>
                 )}
               </Button>
               
               <p className="text-center text-[9px] text-muted-foreground/60 font-bold uppercase tracking-widest px-10 leading-relaxed">
-                By proceeding, you authorize the foundation to record your membership in the immutable registry and agree to the community charter.
+                {t("membership.securityNote")}
               </p>
            </div>
         </div>

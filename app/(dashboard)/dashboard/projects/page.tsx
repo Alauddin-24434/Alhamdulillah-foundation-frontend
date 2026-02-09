@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -17,7 +17,6 @@ import {
   Clock,
   CheckCircle2,
 } from "lucide-react";
-import { Suspense } from "react";
 import Loading from "./loading";
 import {
   useGetProjectsQuery,
@@ -28,9 +27,10 @@ import { AFPageHeader } from "@/components/shared/AFPageHeader";
 import { AFSearchFilters } from "@/components/shared/AFSearchFilters";
 import { AFSectionTitle } from "@/components/shared/AFSectionTitle";
 import { AFPagination } from "@/components/shared/AFPagination";
+import { useTranslation } from "react-i18next";
 
 export default function ProjectsPage() {
-  //======================   STATE & HOOKS   ===============================
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [limit] = useState(8);
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,26 +48,20 @@ export default function ProjectsPage() {
   const projects = projectsResponse?.data || [];
   const meta = projectsResponse?.meta || { totalPages: 1, total: 0 };
 
-  //======================   EVENT HANDLERS   ===============================
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (
-      confirm(
-        "Are you sure you want to delete this project? This action cannot be undone.",
-      )
-    ) {
-      const toastId = toast.loading("Decommissioning project...");
+    if (confirm(t("users.deleteConfirm"))) {
+      const toastId = toast.loading(t("common.processing"));
       try {
         await deleteProject(id).unwrap();
-        toast.success("Project identity purged successfully", { id: toastId });
+        toast.success(t("common.success"), { id: toastId });
       } catch (error) {
-        toast.error("Failed to delete project. Protocol violation.", { id: toastId });
+        toast.error(t("common.error"), { id: toastId });
       }
     }
   };
 
-  //======================   SUB-COMPONENTS   ===============================
   const StatCard = ({ icon: Icon, label, value, color }: any) => (
     <Card className="p-4 border-none bg-card/40 backdrop-blur-md shadow-sm flex items-center gap-4">
       <div className={`p-3 rounded-xl bg-${color}-500/10 text-${color}-500`}>
@@ -88,7 +82,6 @@ export default function ProjectsPage() {
 
     return (
       <Card className="group overflow-hidden border-none bg-card/50 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-700 rounded-[2rem] flex flex-col h-full">
-        {/* Project Thumbnail Area */}
         <div className="h-56 overflow-hidden relative">
           <img
             src={project.thumbnail || "/placeholder.svg"}
@@ -97,22 +90,20 @@ export default function ProjectsPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-60" />
           
-          {/* Status Badge */}
           <div className="absolute top-4 right-4 z-10">
             <span
               className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl backdrop-blur-xl border border-white/20 ${
                 project.status === "ongoing"
                   ? "bg-emerald-500 text-white"
                   : project.status === "upcoming"
-                    ? "bg-orange-500 text-white ring-4 ring-orange-500/20"
-                    : "bg-rose-600 text-white ring-4 ring-rose-600/20"
+                    ? "bg-orange-500 text-white"
+                    : "bg-rose-600 text-white"
               }`}
             >
-              {project.status}
+              {t(`projects.statusLabels.${project.status}`, { defaultValue: project.status })}
             </span>
           </div>
 
-          {/* Location Badge */}
           <div className="absolute bottom-4 left-4 z-10">
             <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-lg text-white text-[10px] font-bold border border-white/10">
               <MapPin size={10} className="text-primary-foreground" />
@@ -122,7 +113,6 @@ export default function ProjectsPage() {
         </div>
 
         <div className="p-7 flex flex-col flex-1">
-          {/* Title & Description */}
           <div className="mb-6 flex-1">
             <Link href={`/dashboard/projects/${project._id}`}>
               <h3 className="text-lg font-black text-foreground mb-3 line-clamp-1 hover:text-primary transition-colors cursor-pointer">
@@ -134,11 +124,10 @@ export default function ProjectsPage() {
             </p>
           </div>
 
-          {/* Progress Section */}
           <div className="space-y-3 mb-8">
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Capital Raised</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{t("projects.currentAmount")}</p>
                 <p className="text-lg font-black text-primary">৳{(project.totalInvestment || 0).toLocaleString()}</p>
               </div>
               <div className="text-right">
@@ -149,24 +138,19 @@ export default function ProjectsPage() {
             </div>
             <div className="relative h-2.5 w-full bg-muted/30 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-1000 ease-out relative ${
-                  progress > 80 ? "bg-emerald-500" : "bg-primary"
-                }`}
+                className={`h-full rounded-full transition-all duration-1000 ease-out ${progress > 80 ? "bg-emerald-500" : "bg-primary"}`}
                 style={{ width: `${progress}%` }}
-              >
-                <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-[-20deg]" />
-              </div>
+              />
             </div>
           </div>
 
-          {/* Meta Stats */}
           <div className="grid grid-cols-2 gap-4 pt-6 border-t border-muted/30">
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
                 <Users size={16} />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Partners</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">{t("projects.members")}</p>
                 <p className="text-sm font-black">{project.memberCount || 0}</p>
               </div>
             </div>
@@ -175,22 +159,21 @@ export default function ProjectsPage() {
                 <Target size={16} />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Goal</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">{t("projects.targetAmount")}</p>
                 <p className="text-sm font-black">৳{(project.initialInvestment || 0).toLocaleString()}</p>
               </div>
             </div>
           </div>
 
-          {/* Hover Actions */}
           <div className="mt-8 flex gap-3">
              <Link href={`/dashboard/projects/${project._id}`} className="flex-1">
-                <Button className="w-full h-11 rounded-2xl font-black text-xs uppercase tracking-widest bg-primary hover:shadow-lg hover:shadow-primary/20 transition-all">
-                  Deep Dive
+                <Button className="w-full h-11 rounded-2xl font-black text-xs uppercase tracking-widest bg-primary transition-all">
+                  {t("projects.viewDetails")}
                 </Button>
              </Link>
              <div className="flex gap-2">
                 <Link href={`/dashboard/projects/${project._id}/edit`}>
-                  <Button variant="outline" size="icon" className="h-11 w-11 rounded-2xl border-muted hover:border-blue-500/50 hover:bg-blue-500/5 text-blue-500">
+                  <Button variant="outline" size="icon" className="h-11 w-11 rounded-2xl border-muted text-blue-500">
                     <Edit2 size={16} />
                   </Button>
                 </Link>
@@ -198,7 +181,7 @@ export default function ProjectsPage() {
                   variant="outline" 
                   size="icon" 
                   onClick={(e) => handleDelete(e, project._id)}
-                  className="h-11 w-11 rounded-2xl border-muted hover:border-destructive/50 hover:bg-destructive/5 text-destructive"
+                  className="h-11 w-11 rounded-2xl border-muted text-destructive"
                 >
                   <Trash2 size={16} />
                 </Button>
@@ -209,16 +192,12 @@ export default function ProjectsPage() {
     );
   };
 
-  //======================   MAIN RENDER   ===============================
   if (isLoading) {
     return (
       <div className="flex h-[450px] flex-col items-center justify-center gap-6">
-        <div className="relative">
-          <div className="h-20 w-20 border-4 border-primary/10 border-t-primary rounded-full animate-spin" />
-          <Loader2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-primary animate-pulse" />
-        </div>
+        <Loader2 className="h-10 w-10 text-primary animate-spin" />
         <p className="text-muted-foreground font-black text-xs uppercase tracking-[0.3em] animate-pulse">
-          Retrieving Portfolio...
+          {t("projects.loading")}
         </p>
       </div>
     );
@@ -227,37 +206,33 @@ export default function ProjectsPage() {
   return (
     <Suspense fallback={<Loading />}>
       <div className="max-w-[1600px] mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-20">
-        {/* Page Header */}
         <AFPageHeader
-          title="Strategic Portfolio"
-          description="High-impact foundation initiatives driving sustainable growth across agriculture, technology, and real estate."
+          title={t("projects.title")}
+          description={t("projects.description")}
           action={
             <Link href="/dashboard/projects/new">
-              <Button className="h-14 px-8 shadow-2xl shadow-primary/30 rounded-[1.25rem] hover:scale-105 transition-all group font-black uppercase text-xs tracking-widest bg-primary">
-                <Plus className="h-5 w-5 mr-3 group-hover:rotate-90 transition-transform duration-500" />
-                Inaugurate Project
+              <Button className="h-14 px-8 shadow-2xl shadow-primary/30 rounded-[1.25rem] font-black uppercase text-xs tracking-widest bg-primary">
+                <Plus className="h-5 w-5 mr-3" />
+                {t("projects.createProject")}
               </Button>
             </Link>
           }
         />
 
-        {/* Dynamic Stats Banner */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard icon={Briefcase} label="Total Assets" value={meta.total || 0} color="blue" />
-          <StatCard icon={TrendingUp} label="Ongoing" value={projects.filter((p: any) => p.status === 'ongoing').length} color="emerald" />
-          <StatCard icon={Clock} label="Upcoming" value={projects.filter((p: any) => p.status === 'upcoming').length} color="amber" />
-          <StatCard icon={CheckCircle2} label="Completed" value={projects.filter((p: any) => p.status === 'expired').length} color="slate" />
+          <StatCard icon={Briefcase} label={t("projects.title")} value={meta.total || 0} color="blue" />
+          <StatCard icon={TrendingUp} label={t("projects.active")} value={projects.filter((p: any) => p.status === 'ongoing').length} color="emerald" />
+          <StatCard icon={Clock} label={t("projects.pending")} value={projects.filter((p: any) => p.status === 'upcoming').length} color="amber" />
+          <StatCard icon={CheckCircle2} label={t("projects.completed")} value={projects.filter((p: any) => p.status === 'expired').length} color="slate" />
         </div>
 
-        {/* Content Section */}
         <div className="space-y-8">
           <AFSectionTitle 
-            title="Portfolio Overview" 
-            subtitle="Analyze and track the performance of all community-backed investment projects."
+            title={t("projects.title")} 
+            subtitle={t("projects.description")}
             badge="Live Feed"
           />
 
-          {/* Filtering & Search Area */}
           <div className="bg-card/30 backdrop-blur-md p-6 rounded-[2.5rem] border border-muted/20 shadow-sm">
             <AFSearchFilters
               searchValue={searchQuery}
@@ -265,12 +240,12 @@ export default function ProjectsPage() {
                 setSearchQuery(val);
                 setPage(1);
               }}
-              searchPlaceholder="Query by project identity, geological location, or strategic aims..."
+              searchPlaceholder={t("myPayments.searchPlaceholder")}
               filters={[
-                { label: "All Assets", value: "all" },
-                { label: "In Pipeline", value: "upcoming" },
-                { label: "Active Operations", value: "ongoing" },
-                { label: "Archived", value: "expired" },
+                { label: t("payments.allStatuses"), value: "all" },
+                { label: t("projects.pending"), value: "upcoming" },
+                { label: t("projects.active"), value: "ongoing" },
+                { label: t("projects.completed"), value: "expired" },
               ]}
               activeFilter={filterStatus}
               onFilterChange={(val) => {
@@ -280,7 +255,6 @@ export default function ProjectsPage() {
             />
           </div>
 
-          {/* Projects Grid */}
           {projects.length > 0 ? (
             <div className="space-y-12">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
@@ -289,7 +263,6 @@ export default function ProjectsPage() {
                 ))}
               </div>
 
-              {/* Pagination Infrastructure */}
               <AFPagination 
                 currentPage={page}
                 totalPages={meta.totalPages}
@@ -301,15 +274,8 @@ export default function ProjectsPage() {
             </div>
           ) : (
             <Card className="p-32 text-center border-none bg-card/20 backdrop-blur-sm rounded-[3rem] border-2 border-dashed border-muted/30">
-              <div className="bg-primary/5 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 animate-pulse">
-                <Target className="h-10 w-10 text-primary/40" />
-              </div>
-              <h3 className="text-2xl font-black text-foreground mb-3">
-                No Assets Discovered
-              </h3>
-              <p className="text-muted-foreground/60 mb-10 max-w-sm mx-auto font-medium">
-                The current query did not match any projects in the foundation ledger.
-              </p>
+              <Target className="h-10 w-10 text-primary/40 mx-auto mb-8" />
+              <h3 className="text-2xl font-black text-foreground mb-3">{t("common.noData")}</h3>
               <Button
                 variant="outline"
                 onClick={() => {
@@ -317,9 +283,9 @@ export default function ProjectsPage() {
                   setFilterStatus("all");
                   setPage(1);
                 }}
-                className="rounded-2xl px-12 h-12 font-black uppercase text-[10px] tracking-widest border-primary/20 hover:bg-primary hover:text-white transition-all shadow-xl shadow-primary/5"
+                className="rounded-2xl px-12 h-12 font-black uppercase text-[10px] tracking-widest"
               >
-                Clear All Constraints
+                Reset
               </Button>
             </Card>
           )}

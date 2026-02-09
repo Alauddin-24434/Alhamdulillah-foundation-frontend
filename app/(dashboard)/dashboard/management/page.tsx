@@ -76,13 +76,13 @@ export default function ManagementPage() {
       header: "Leadership Profile",
       cell: (m: any) => (
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center font-black text-xs">
-            {m.userId?.name?.substring(0, 2).toUpperCase()}
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center font-black text-xs uppercase">
+            {(m.name || m.userId?.name || '??')?.substring(0, 2)}
           </div>
           <div>
-            <div className="font-bold text-sm">{m.userId?.name}</div>
-            <div className="text-[10px] text-muted-foreground">
-              {m.userId?.email}
+            <div className="font-bold text-sm">{m.name || m.userId?.name}</div>
+            <div className="text-[10px] text-muted-foreground uppercase font-black">
+              {m.committeeType || 'GENERAL'}
             </div>
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function ManagementPage() {
       header: "Position",
       cell: (m: any) => (
         <div className="flex items-center gap-1 text-xs font-bold">
-          <Briefcase size={12} />
+          <Briefcase size={12} className="text-primary" />
           {m.position}
         </div>
       ),
@@ -143,12 +143,12 @@ export default function ManagementPage() {
   return (
     <div className="space-y-6">
       <AFPageHeader
-        title="Leadership Secretariat"
-        description="Manage foundation leadership and governance"
+        title="লিডারশিপ সেক্রেটারিয়েট"
+        description="ফাউন্ডেশনের নেতৃত্ব এবং শাসন পরিচালনা করুন"
         action={
           <Button className="cursor-pointer" onClick={() => setIsDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Appoint Member
+            সদস্য নিয়োগ দিন
           </Button>
         }
       />
@@ -159,20 +159,21 @@ export default function ManagementPage() {
           setSearchTerm(v);
           setPage(1);
         }}
+        searchPlaceholder="নাম বা পদবী দিয়ে খুঁজুন..."
       />
 
       <AFDataTable
         columns={columns}
         data={managements}
         isLoading={isLoading}
-        emptyMessage="No management records found"
+        emptyMessage="কোন নেতৃত্ব রেকর্ড পাওয়া যায়নি"
       />
 
       {/* Pagination */}
       {meta && (
         <div className="flex justify-between items-center text-xs font-bold">
           <span>
-            Page {meta.page} of {meta.totalPage} • Total {meta.total}
+            পৃষ্ঠা {meta.page} এর {meta.totalPage} • মোট {meta.total} জন
           </span>
           <div className="flex gap-2">
             <Button
@@ -180,14 +181,14 @@ export default function ManagementPage() {
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
             >
-              Prev
+              পূর্ববর্তী
             </Button>
             <Button
               size="sm"
               disabled={page === meta.totalPage}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next
+              পরবর্তী
             </Button>
           </div>
         </div>
@@ -196,7 +197,7 @@ export default function ManagementPage() {
       <AFModal
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title={editingManagement ? "Edit Appointment" : "New Appointment"}
+        title={editingManagement ? "নিয়োগ পরিবর্তন" : "নতুন নিয়োগ"}
       >
         <ManagementForm
           initialData={editingManagement}

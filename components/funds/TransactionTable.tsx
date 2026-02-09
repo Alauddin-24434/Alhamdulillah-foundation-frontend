@@ -45,13 +45,27 @@ export const TransactionTable = ({
       header: "Type",
       cell: (tx: any) => (
         <span
-          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+          className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
             tx.type === "INCOME"
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-rose-100 text-rose-700"
+              ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+              : "bg-rose-50 text-rose-600 border border-rose-100"
           }`}
         >
           {tx.type}
+        </span>
+      ),
+    },
+    {
+      header: "Fund",
+      cell: (tx: any) => (
+        <span
+          className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+            tx.fundType === "WELFARE"
+              ? "bg-amber-50 text-amber-600 border border-amber-100"
+              : "bg-blue-50 text-blue-600 border border-blue-100"
+          }`}
+        >
+          {tx.fundType || "MAIN"}
         </span>
       ),
     },

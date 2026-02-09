@@ -37,29 +37,10 @@ export default function DashboardLayout({
   const lang = i18n.language as "en" | "bn";
 
   //======================   SECURITY ENFORCEMENT   ===============================
+  // Handled by Middleware & SessionSync now
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    const isMember =
-      user.role === "MEMBER" ||
-      user.role === "ADMIN" ||
-      user.role === "SUPER_ADMIN";
-
-    const pathname = window.location.pathname;
-
-    const isRestrictedPath =
-      pathname.startsWith("/dashboard/") &&
-      pathname !== "/dashboard/membership" &&
-      pathname !== "/dashboard/settings" &&
-      pathname !== "/dashboard";
-
-    if (!isMember && isRestrictedPath) {
-      router.push("/dashboard");
-    }
-  }, [user, router]);
+     // Optional: language init or theme logic here
+  }, []);
 
   const changeLang = (value: "en" | "bn") => {
     i18n.changeLanguage(value);

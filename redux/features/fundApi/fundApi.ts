@@ -7,6 +7,7 @@ export const fundApi = baseApi.injectEndpoints({
       any,
       {
         type: "INCOME" | "EXPENSE";
+        fundType?: "MAIN" | "WELFARE";
         amount: number;
         reason: string;
       }
@@ -16,26 +17,30 @@ export const fundApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Fund"], // 👈 this will now work
+      invalidatesTags: ["Fund"],
     }),
 
     // ✅ FUND SUMMARY
     getFundSummary: builder.query<
       {
-        totalIncome: number;
-        totalExpense: number;
-        currentBalance: number;
+        main: { totalIncome: number; totalExpense: number; balance: number };
+        welfare: { totalIncome: number; totalExpense: number; balance: number };
+        totalBalance: number;
       },
       void
     >({
       query: () => "/funds/summary",
-      providesTags: ["Fund"], // 👈 IMPORTANT
+      providesTags: ["Fund"],
       keepUnusedDataFor: 60,
     }),
 
     // ✅ FUND HISTORY
-    getFundHistory: builder.query<any, { page?: number; limit?: number }>({
-      query: ({ page = 1, limit = 20 }) => `/funds/history?page=${page}&limit=${limit}`,
+    getFundHistory: builder.query<any, { page?: number; limit?: number; fundType?: "MAIN" | "WELFARE" }>({
+      query: ({ page = 1, limit = 20, fundType }) => {
+        let url = `/funds/history?page=${page}&limit=${limit}`;
+        if (fundType) url += `&fundType=${fundType}`;
+        return url;
+      },
       providesTags: ["Fund"],
     }),
 

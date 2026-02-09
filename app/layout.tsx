@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/shared/ThemeProvider";
 
 import Script from "next/script";
 import { ToastContainer } from "react-toastify";
+import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -81,6 +82,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               {children}
+              <Toaster />
          {/* 🔔 TOASTER (ONE TIME) */}
         <ToastContainer
           position="top-right"

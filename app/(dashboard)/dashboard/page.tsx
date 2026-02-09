@@ -17,6 +17,7 @@ import {
   Users,
   Briefcase,
   Layers,
+  ShieldCheck
 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -33,6 +34,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 export default function DashboardPage() {
@@ -40,11 +42,17 @@ export default function DashboardPage() {
   const { t } = useTranslation();
   
   //======================   API HOOKS & DATA   ===============================
-  const { data: userResponse, isLoading: userLoading, refetch } = useGetMeQuery({});
-  const { data: statsResponse, isFetching: statsFetching } = useGetStatsQuery({});
+  const userFromState = useSelector((state: any) => state.AFAuth.user);
+  
+  //======================   API HOOKS & DATA   ===============================
+  const { data: userResponse, isLoading: userLoading, refetch } = useGetMeQuery(undefined, {
+    skip: !userFromState
+  });
+  const { data: statsResponse, isFetching: statsFetching } = useGetStatsQuery(undefined, {
+    skip: !userFromState
+  });
 
   const user = userResponse?.data || userResponse;
-  console.log('[DASHBOARD USER]', user);
   const stats = statsResponse?.data;
 
   useEffect(() => {
@@ -138,24 +146,24 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Overview Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 ${isAdmin ? 'xl:grid-cols-5' : 'lg:grid-cols-4'} gap-6`}>
         <Card className="p-6 overflow-hidden relative group hover:shadow-xl transition-all duration-300 border-none bg-gradient-to-br from-blue-500/10 to-indigo-500/10 dark:from-blue-500/5 dark:to-indigo-500/5">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
             <Briefcase size={80} />
           </div>
           <div className="flex items-center gap-4 relative z-10">
-            <div className="p-3 bg-blue-500 rounded-xl text-white shadow-lg shadow-blue-500/20">
+            <div className="p-3 bg-blue-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
               <Layers size={24} />
             </div>
             <div>
-              <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+              <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
                 {isAdmin 
-                  ? (t("dashboard.globalProjects") || "Global Projects") 
+                  ? (t("dashboard.globalProjects") || "Venture Portfolio") 
                   : (t("dashboard.activeProjects") || "Active Projects")}
               </p>
               <h3 className="text-xl font-black">{stats?.totalProjects || 0}</h3>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                {stats?.activeProjects || 0} {t("dashboard.currentlyOngoing") || "currently ongoing"}
+              <p className="text-[10px] text-muted-foreground mt-1 font-bold">
+                {stats?.activeProjects || 0} {t("dashboard.currentlyOngoing") || "LIVE OPERATIONS"}
               </p>
             </div>
           </div>
@@ -166,46 +174,67 @@ export default function DashboardPage() {
             <TrendingUp size={80} />
           </div>
           <div className="flex items-center gap-4 relative z-10">
-            <div className="p-3 bg-emerald-500 rounded-xl text-white shadow-lg shadow-emerald-500/20">
-              <Database size={24} />
+            <div className="p-3 bg-emerald-600 rounded-xl text-white shadow-lg shadow-emerald-500/20">
+              <TrendingUp size={24} />
             </div>
             <div>
-              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+              <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
                 {isAdmin 
-                  ? (t("dashboard.totalRaised") || "Total Raised") 
-                  : (t("dashboard.myImpact") || "My Impact")}
+                  ? (t("dashboard.netProfit") || "Network Yield") 
+                  : (t("dashboard.myImpact") || "Capital Contribution")}
               </p>
               <h3 className="text-xl font-black">
-                ৳{(isAdmin ? (stats?.totalRaised || 0) : (stats?.myInvestments || 0)).toLocaleString()}
+                ৳{(isAdmin ? (stats?.netProfit || 0) : (stats?.myInvestments || 0)).toLocaleString()}
               </h3>
-              <p className="text-[10px] text-muted-foreground mt-1">
+              <p className="text-[10px] text-muted-foreground mt-1 font-bold">
                 {isAdmin 
-                  ? (t("dashboard.acrossFoundation") || "Across foundation") 
-                  : (t("dashboard.myTotalContribution") || "My total contribution")}
+                  ? (t("dashboard.netYield") || "NET EARNINGS") 
+                  : (t("dashboard.myTotalContribution") || "MY TOTAL ROI")}
               </p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-6 overflow-hidden relative group hover:shadow-xl transition-all duration-300 border-none bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/5 dark:to-orange-500/5">
+        <Card className="p-6 overflow-hidden relative group hover:shadow-xl transition-all duration-300 border-none bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/5 dark:to-blue-500/5">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
             <CreditCard size={80} />
           </div>
           <div className="flex items-center gap-4 relative z-10">
-            <div className="p-3 bg-amber-500 rounded-xl text-white shadow-lg shadow-amber-500/20">
-              <CreditCard size={24} />
+            <div className="p-3 bg-cyan-600 rounded-xl text-white shadow-lg shadow-cyan-500/20">
+              <Database size={24} />
             </div>
             <div>
-              <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest">
+              <p className="text-[10px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">
                 {isAdmin 
-                  ? (t("dashboard.reserveFund") || "Reserve Fund") 
-                  : (t("dashboard.foundationFund") || "Foundation Fund")}
+                  ? (t("dashboard.mainFund") || "Foundation Reserve") 
+                  : (t("dashboard.foundationFund") || "Protocol Fund")}
               </p>
-              <h3 className="text-xl font-black">৳{(stats?.currentBalance || 0).toLocaleString()}</h3>
-              <p className="text-[10px] text-muted-foreground mt-1">
+              <h3 className="text-xl font-black">৳{(stats?.mainBalance || stats?.currentBalance || 0).toLocaleString()}</h3>
+              <p className="text-[10px] text-muted-foreground mt-1 font-bold">
                 {isAdmin 
-                  ? (t("dashboard.availableLiquidity") || "Available liquidity") 
-                  : (t("dashboard.totalTransparentFund") || "Total transparent fund")}
+                  ? (t("dashboard.mainLiquidity") || "MAIN OPERATIONAL") 
+                  : (t("dashboard.totalTransparentFund") || "LIVE LIQUIDITY")}
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Welfare Fund Card */}
+        <Card className="p-6 overflow-hidden relative group hover:shadow-xl transition-all duration-300 border-none bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/5 dark:to-orange-500/5">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+            <AlertTriangle size={80} />
+          </div>
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="p-3 bg-amber-500 rounded-xl text-white shadow-lg shadow-amber-500/20">
+               <ShieldCheck size={24} />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">
+                {t("dashboard.welfareReserve") || "Welfare Reserve"}
+              </p>
+              <h3 className="text-xl font-black">৳{(stats?.welfareBalance || 0).toLocaleString()}</h3>
+              <p className="text-[10px] text-muted-foreground mt-1 font-bold">
+                KOLLAN THOBIL
               </p>
             </div>
           </div>
@@ -216,18 +245,18 @@ export default function DashboardPage() {
             <Users size={80} />
           </div>
           <div className="flex items-center gap-4 relative z-10">
-            <div className="p-3 bg-purple-500 rounded-xl text-white shadow-lg shadow-purple-500/20">
+            <div className="p-3 bg-purple-600 rounded-xl text-white shadow-lg shadow-purple-500/20">
               <Users size={24} />
             </div>
             <div>
-              <p className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">
+              <p className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest">
                 {isAdmin 
-                  ? (t("dashboard.totalUsers") || "Total Users") 
-                  : (t("dashboard.ourCommunity") || "Our Community")}
+                  ? (t("dashboard.totalNodes") || "Network Nodes") 
+                  : (t("dashboard.ourCommunity") || "Impact Community")}
               </p>
               <h3 className="text-xl font-black">{stats?.totalUsers || 0}</h3>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                {t("dashboard.registeredMembers") || "Registered platform members"}
+              <p className="text-[10px] text-muted-foreground mt-1 font-bold uppercase">
+                {t("dashboard.registered") || "REGISTERED"}
               </p>
             </div>
           </div>

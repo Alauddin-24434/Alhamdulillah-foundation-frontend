@@ -45,25 +45,9 @@ const authApi = baseApi.injectEndpoints({
             dispatch(updateUser(data.data));
           }
         } catch (error) {
-          console.error("Error syncing user data:", error);
+          // Handle sync errors silently, RTK Query will handle the actual error state
         }
       },
-    }),
-
-    // ===== ✅ Get all users (admin access) with filters =====
-    getUsers: build.query({
-      query: (params) => {
-        const queryParams = new URLSearchParams();
-        if (params?.searchTerm)
-          queryParams.append("searchTerm", params.searchTerm);
-        if (params?.page) queryParams.append("page", params.page);
-        if (params?.limit) queryParams.append("limit", params.limit);
-        return {
-          url: `users/?${queryParams.toString()}`,
-          method: "GET",
-        };
-      },
-      providesTags: ["Auth"],
     }),
 
     // ===== ✅ Get stats =====
@@ -82,6 +66,29 @@ const authApi = baseApi.injectEndpoints({
         method: "POST",
       }),
     }),
+
+    // ===== ✅ Sync Session (Force Cookie Update) =====
+    syncSession: build.mutation({
+      query: () => ({
+        url: "/auth/refresh-token",
+        method: "POST",
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.data?.user && data?.data?.accessToken) {
+            dispatch(
+              setUser({
+                user: data.data.user,
+                accessToken: data.data.accessToken,
+              })
+            );
+          }
+        } catch (error) {
+          // No-op
+        }
+      },
+    }),
   }),
 });
 
@@ -90,9 +97,9 @@ export const {
   useSignUpUserMutation,
   useLoginUserMutation,
   useGetMeQuery,
-  useGetUsersQuery,
   useGetStatsQuery,
   useLogoutUserMutation,
+  useSyncSessionMutation,
 } = authApi;
 
 export default authApi;
