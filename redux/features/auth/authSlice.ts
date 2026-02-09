@@ -8,12 +8,6 @@ export enum UserRole {
   USER = "USER",
 }
 
-export enum UserStatus {
-  ACTIVE = "ACTIVE",
-  PENDING = "PENDING",
-  SUSPENDED = "SUSPENDED",
-}
-
 export interface IUser {
   _id: string;
 
@@ -27,7 +21,6 @@ export interface IUser {
   phone?: string | null;
   address?: string | null;
 
-  status: UserStatus;
   lastLogin?: string | null;
 
   createdAt: string;
@@ -54,7 +47,7 @@ const authSlice = createSlice({
     // When login/signup is successful
     setUser(
       state,
-      action: PayloadAction<{ user: IUser; accessToken: string }>,
+      action: PayloadAction<{ user: IUser | null; accessToken: string }>,
     ) {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;

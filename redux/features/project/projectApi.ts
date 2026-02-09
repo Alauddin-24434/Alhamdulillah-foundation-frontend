@@ -70,6 +70,22 @@ const projectApi = baseApi.injectEndpoints({
         { type: "Project", id: `MEMBERS-${projectId}` },
       ],
     }),
+    settleProject: builder.mutation({
+      query: ({ projectId, profit, loss }) => ({
+        url: `/projects/${projectId}/settle`,
+        method: "POST",
+        body: { profit, loss },
+      }),
+      invalidatesTags: ["Project"],
+    }),
+    updateInvestigation: builder.mutation({
+      query: ({ projectId, report, approvals }) => ({
+        url: `/projects/${projectId}/investigation`,
+        method: "PATCH",
+        body: { report, approvals },
+      }),
+      invalidatesTags: ["Project"],
+    }),
   }),
 });
 
@@ -82,4 +98,6 @@ export const {
   useGetProjectMembersQuery,
   useAddProjectMemberMutation,
   useRemoveProjectMemberMutation,
+  useSettleProjectMutation,
+  useUpdateInvestigationMutation,
 } = projectApi;

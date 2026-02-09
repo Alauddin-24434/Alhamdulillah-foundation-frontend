@@ -199,11 +199,16 @@ export default function ProjectForm({
               }
               required
             >
-              <option value="Agriculture">Agriculture</option>
-              <option value="Fish Farming">Fish Farming</option>
-              <option value="Real Estate">Real Estate</option>
-              <option value="Technology">Technology</option>
-              <option value="Education">Education</option>
+              <option value="Poultry">Poultry (হাস মুরগী পালন)</option>
+              <option value="Goat Farming">Goat Farming (ছাগল পালন)</option>
+              <option value="Cattle Farming">Cattle Farming (গাভী পালন)</option>
+              <option value="Fish Farming">Fish Farming (মাছ চাষ)</option>
+              <option value="Vegetable Farming">Vegetable Farming (সবজী চাষ)</option>
+              <option value="Crop Storage">Crop Storage (মৌসুমী ফসল গুদাম জাত করন)</option>
+              <option value="Land & Plantation">Land & Plantation (জমি ও বৃক্ষ রোপন)</option>
+              <option value="Equipment Trade">Equipment Trade (যন্তপাতি ক্রয় বিক্রয়)</option>
+              <option value="Land Purchase">Land Purchase (জমি ক্রয়)</option>
+              <option value="Factory">Factory (কারখানা নির্মান)</option>
             </select>
           </div>
 
@@ -220,8 +225,13 @@ export default function ProjectForm({
                   initialInvestment: Number(e.target.value),
                 })
               }
+              min={30000}
+              max={150000}
               required
             />
+            <p className="text-xs text-muted-foreground">
+              Allowed range: ৳30,000 - ৳150,000
+            </p>
           </div>
         </div>
 

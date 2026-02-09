@@ -71,28 +71,21 @@ const baseQueryWithReauth: typeof baseQuery = async (
   // }
 
   if (result.error?.status === 401) {
-    // console.warn("🔐 401 Unauthorized detected");
-
-    if (!mutex.isLocked()) {
-      // console.log("🔓 Mutex free → acquiring lock");
+    if (mutex.isLocked()) {
+      await mutex.waitForUnlock();
+      result = await baseQuery(args, api, extraOptions);
+    } else {
       const release = await mutex.acquire();
-
       try {
-        // console.log("🔄 Calling refresh-token API");
-
         const refreshResult = await baseQuery(
           { url: "/auth/refresh-token", method: "POST" },
           api,
           extraOptions,
         );
 
-        // console.log("📦 Refresh response:", refreshResult);
-
         const refreshData = refreshResult.data as IRefreshResponse;
 
         if (refreshData?.data?.accessToken) {
-          // console.log("✅ New access token received");
-
           api.dispatch(
             setUser({
               user: refreshData.data.user,
@@ -100,23 +93,16 @@ const baseQueryWithReauth: typeof baseQuery = async (
             }),
           );
 
-          // console.log("🔁 Retrying original request");
           result = await baseQuery(args, api, extraOptions);
         } else {
-          // console.error("🚫 Refresh failed → logging out");
+          // If refresh fails, clear auth state
           api.dispatch(logout());
         }
       } catch (err) {
-        // console.error("💥 Refresh token error:", err);
         api.dispatch(logout());
       } finally {
-        // console.log("🔓 Releasing mutex lock");
         release();
       }
-    } else {
-      // console.log("⏳ Waiting for ongoing refresh to finish");
-      await mutex.waitForUnlock();
-      result = await baseQuery(args, api, extraOptions);
     }
   }
 
@@ -138,6 +124,7 @@ const baseApi = createApi({
     "Project",
     "Banner",
     "Payment",
+    "Vote",
     "Fund",
     "Management",
     "Notice"

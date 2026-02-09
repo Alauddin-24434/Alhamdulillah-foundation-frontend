@@ -16,71 +16,72 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-const registerSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
 export default function RegisterPage() {
   const router = useRouter();
   const [signUpUser, { isLoading }] = useSignUpUserMutation();
   const dispatch = useDispatch();
-   const { t } = useTranslation();
+  const { t } = useTranslation();
+
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
 
+  const registerSchema = z
+    .object({
+      firstName: z.string().min(1, "First Name is required"),
+      lastName: z.string().min(1, "Last Name is required"),
+      email: z.string().email("Invalid email address"),
+      password: z.string().min(6, "Password must be at least 6 characters"),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
 
-  const validation = registerSchema.safeParse(formData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (!validation.success) {
-    const firstError =
-      validation.error.errors[0]?.message || "Invalid form data";
-    toast.error(firstError);
-    return;
-  }
+    const validation = registerSchema.safeParse(formData);
 
-  try {
-    const res = await signUpUser({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    }).unwrap();
+    if (!validation.success) {
+      const firstError = validation.error.errors[0]?.message || "Invalid form data";
+      toast.error(firstError);
+      return;
+    }
 
-    dispatch(
-      setUser({
-        user: res?.data?.user,
-        accessToken: res?.data?.accessToken,
-      }),
-    );
+    try {
+      const res = await signUpUser({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+      }).unwrap();
 
-    toast.success(res?.message || "Registration successful 🎉");
+      dispatch(
+        setUser({
+          user: res?.data?.user,
+          accessToken: res?.data?.accessToken,
+        }),
+      );
 
-    // ✅ Immediate redirect (toast will still show)
-    router.push("/dashboard/membership");
-  } catch (err: any) {
-    toast.error(err?.data?.message || "Something went wrong");
-  }
-};
+      toast.success(res?.message || "Registration successful 🎉");
 
- 
+      // ✅ Immediate redirect (toast will still show)
+      router.push("/dashboard/membership");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Something went wrong");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center mt-12">
@@ -104,9 +105,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                           <h1 className="text-2xl font-bold tracking-tight">
                             {t("auth.register.registerTitle")}
                           </h1>
-                          {/* <p className="text-sm text-foreground/60 mt-1">
-                            {t("auth.register.registerSubtitle")}
-                          </p> */}
                         </div>
                       </div>
               
@@ -117,19 +115,35 @@ const handleSubmit = async (e: React.FormEvent) => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-5">
-              <div className="space-y-2">
-                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">{t("auth.register.name")}</Label>
-                <div className="relative">
-                  <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    name="name"
-                    value={formData.name}
-                    placeholder="Type your name"
-                    onChange={handleChange}
-                    className="h-12 pl-10 rounded-xl border-input bg-background/50 focus:bg-background transition-all font-medium"
-                    required
-                  />
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">{t("auth.register.firstName")}</Label>
+                    <div className="relative">
+                      <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        name="firstName"
+                        value={formData.firstName}
+                        placeholder="First Name"
+                        onChange={handleChange}
+                        className="h-12 pl-10 rounded-xl border-input bg-background/50 focus:bg-background transition-all font-medium"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">{t("auth.register.lastName")}</Label>
+                    <div className="relative">
+                      <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        name="lastName"
+                        value={formData.lastName}
+                        placeholder="Last Name"
+                        onChange={handleChange}
+                        className="h-12 pl-10 rounded-xl border-input bg-background/50 focus:bg-background transition-all font-medium"
+                        required
+                      />
+                    </div>
+                  </div>
               </div>
              
 
@@ -183,6 +197,31 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
               </div>
             </div>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border/50" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-foreground/50">
+                  Or join with
+                </span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => {
+                window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/google`;
+              }}
+              className="w-full h-12 rounded-xl font-medium border-border/50 hover:bg-muted/50 mb-4"
+            >
+              <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+              </svg>
+              Continue with Google
+            </Button>
 
             <Button
               type="submit"

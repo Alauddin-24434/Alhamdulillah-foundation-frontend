@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 interface AddTransactionFormProps {
   onAdd: (data: {
     type: "INCOME" | "EXPENSE";
+    fundType: "MAIN" | "WELFARE";
     amount: number;
     reason: string;
     evidenceImages: string[];
@@ -22,7 +23,8 @@ export const AddTransactionForm = ({
   onAdd,
   adding,
 }: AddTransactionFormProps) => {
-  const [txType, setTxType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
+  const [txType, setTxType] = useState<"INCOME" | "EXPENSE">("INCOME");
+  const [fundType, setFundType] = useState<"MAIN" | "WELFARE">("MAIN");
   const [txAmount, setTxAmount] = useState("");
   const [txReason, setTxReason] = useState("");
   const [evidenceImages, setEvidenceImages] = useState<File[]>([]);
@@ -33,7 +35,6 @@ export const AddTransactionForm = ({
     setEvidenceImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Cloudinary upload logic with progress
   const uploadToCloudinary = async (files: File[]): Promise<string[]> => {
     const urls: string[] = [];
     setIsUploading(true);
@@ -58,7 +59,6 @@ export const AddTransactionForm = ({
               const filePercent = Math.round(
                 (progressEvent.loaded * 100) / (progressEvent.total || 1),
               );
-              // মোট ফাইলের সাপেক্ষে গড় প্রগ্রেস ক্যালকুলেশন
               const overallPercent = Math.round(
                 (i * 100 + filePercent) / totalFiles,
               );
@@ -90,6 +90,7 @@ export const AddTransactionForm = ({
 
       await onAdd({
         type: txType,
+        fundType,
         amount: Number(txAmount),
         reason: txReason,
         evidenceImages: imageUrls,
@@ -97,10 +98,8 @@ export const AddTransactionForm = ({
 
       toast.success("Transaction added successfully!");
 
-      // Reset Form
       setTxAmount("");
       setTxReason("");
-      setTxType("EXPENSE");
       setEvidenceImages([]);
       setUploadProgress(0);
     } catch (error) {
@@ -110,120 +109,165 @@ export const AddTransactionForm = ({
 
   return (
     <>
-      <Card className="border-2 border-emerald-100 shadow-md">
-        <CardHeader className="border-b">
-          <CardTitle className="text-lg text-emerald-700">
-            Record Manual Expense
+      <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-md border border-muted/20">
+        <CardHeader className="p-8 border-b border-muted/20 bg-primary/5">
+          <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-primary">
+            Ledger Entry Protocol
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6 pt-6">
-          {/* Image Section */}
-          <div className="space-y-3 p-4 border rounded-lg bg-gray-50/50">
+        <CardContent className="p-8 space-y-8">
+          {/* Action Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left: Type & Fund Selection */}
+            <div className="space-y-6">
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                    Entry Dimension
+                  </label>
+                  <div className="flex gap-2 p-1 bg-muted/30 rounded-2xl h-14">
+                    <button
+                      onClick={() => setTxType("INCOME")}
+                      className={`flex-1 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all ${
+                        txType === "INCOME" 
+                        ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" 
+                        : "text-muted-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      Income
+                    </button>
+                    <button
+                      onClick={() => setTxType("EXPENSE")}
+                      className={`flex-1 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all ${
+                        txType === "EXPENSE" 
+                        ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" 
+                        : "text-muted-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      Expense
+                    </button>
+                  </div>
+               </div>
+
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                    Fund Category
+                  </label>
+                  <div className="flex gap-2 p-1 bg-muted/30 rounded-2xl h-14">
+                    <button
+                      onClick={() => setFundType("MAIN")}
+                      className={`flex-1 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all ${
+                        fundType === "MAIN" 
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
+                        : "text-muted-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      Main Fund
+                    </button>
+                    <button
+                      onClick={() => setFundType("WELFARE")}
+                      className={`flex-1 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all ${
+                        fundType === "WELFARE" 
+                        ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20" 
+                        : "text-muted-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      Welfare
+                    </button>
+                  </div>
+               </div>
+            </div>
+
+            {/* Right: Amount & Reason */}
+            <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                    Fiscal Magnitude
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="e.g. 5000"
+                    disabled={isUploading || adding}
+                    value={txAmount}
+                    onChange={(e) => setTxAmount(e.target.value)}
+                    className="h-14 rounded-2xl border-muted/30 focus:ring-primary/20 bg-background/50 font-black text-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                    Contextual Rationale
+                  </label>
+                  <Input
+                    placeholder="Enter transaction reason..."
+                    disabled={isUploading || adding}
+                    value={txReason}
+                    onChange={(e) => setTxReason(e.target.value)}
+                    className="h-14 rounded-2xl border-muted/30 focus:ring-primary/20 bg-background/50 font-bold"
+                  />
+                </div>
+            </div>
+          </div>
+
+          {/* Evidence Upload */}
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-semibold text-gray-600">
-                <ImageIcon className="w-4 h-4" />
-                <span>Evidence Images (Optional)</span>
-              </div>
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                Evidence Protocols (Optional)
+              </label>
               {isUploading && (
-                <span className="text-xs font-bold text-emerald-600 animate-pulse">
-                  Uploading: {uploadProgress}%
+                <span className="text-[10px] font-black text-primary animate-pulse tracking-widest uppercase">
+                  UPLOADING: {uploadProgress}%
                 </span>
               )}
             </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+              <label className="aspect-square rounded-3xl border-2 border-dashed border-muted/30 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group">
+                <ImageIcon className="h-6 w-6 text-muted-foreground group-hover:text-primary group-hover:scale-110 transition-all" />
+                <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary">Inject Image</span>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setEvidenceImages((prev) => [...prev, ...Array.from(e.target.files!)]);
+                      e.target.value = "";
+                    }
+                  }}
+                  className="hidden"
+                />
+              </label>
 
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              disabled={isUploading || adding}
-              onChange={(e) => {
-                if (e.target.files) {
-                  setEvidenceImages((prev) => [
-                    ...prev,
-                    ...Array.from(e.target.files!),
-                  ]);
-                  e.target.value = "";
-                }
-              }}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer disabled:opacity-50"
-            />
-
-            {/* Upload Progress Bar */}
-            {isUploading && (
-              <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                <div
-                  className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
-              </div>
-            )}
-
-            {/* Preview Thumbnails */}
-            {evidenceImages.length > 0 && (
-              <div className="flex flex-wrap gap-3 mt-4">
-                {evidenceImages.map((file, index) => (
-                  <div
-                    key={index}
-                    className="relative w-20 h-20 border rounded-lg overflow-hidden bg-white shadow-sm group"
-                  >
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt="preview"
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      onClick={() => removeImage(index)}
-                      className="absolute top-1 cursor-pointer right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
+              {evidenceImages.map((file, index) => (
+                <div key={index} className="relative aspect-square rounded-3xl overflow-hidden group border border-muted/20">
+                  <img src={URL.createObjectURL(file)} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button onClick={() => removeImage(index)} className="p-2 bg-rose-500 text-white rounded-full hover:scale-110 transition-transform">
+                      <X size={16} />
                     </button>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Input Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="flex items-center justify-center border rounded-md px-3 h-10 bg-rose-50 text-rose-700 font-black text-xs uppercase tracking-widest border-rose-100">
-              EXPENSE
+                </div>
+              ))}
             </div>
-
-            <Input
-              type="number"
-              placeholder="Amount"
-              value={txAmount}
-              disabled={isUploading || adding}
-              onChange={(e) => setTxAmount(e.target.value)}
-            />
-
-            <Input
-              placeholder="Reason"
-              value={txReason}
-              disabled={isUploading || adding}
-              onChange={(e) => setTxReason(e.target.value)}
-            />
-
-            <Button
-              onClick={handleSubmit}
-              disabled={adding || isUploading}
-              className="bg-emerald-600 cursor-pointer hover:bg-emerald-800 text-white font-bold h-10"
-            >
-              {adding || isUploading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please Wait
-                </>
-              ) : (
-                "Add Expense Entry"
-              )}
-            </Button>
           </div>
+
+          <Button
+            onClick={handleSubmit}
+            disabled={adding || isUploading}
+            className="w-full h-16 bg-primary hover:scale-[1.01] active:scale-95 text-primary-foreground font-black rounded-3xl shadow-2xl shadow-primary/20 transition-all uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4"
+          >
+            {adding || isUploading ? (
+              <>
+                <Loader2 className="h-6 w-6 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Commit to Ledger"
+            )}
+          </Button>
         </CardContent>
       </Card>
-
-      {/* Toast Container (will be at the bottom of the dashboard) */}
-      <ToastContainer position="bottom-right" autoClose={3000} />
+      <ToastContainer position="bottom-right" autoClose={3000} theme="dark" />
     </>
   );
 };

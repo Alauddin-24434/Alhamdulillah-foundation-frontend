@@ -19,9 +19,11 @@ import { AFPageHeader } from "@/components/shared/AFPageHeader";
 import { AFSectionTitle } from "@/components/shared/AFSectionTitle";
 import { AFPagination } from "@/components/shared/AFPagination";
 import { ExpenseRequestTable } from "@/components/funds/ExpenseRequestTable";
+import { useTranslation } from "react-i18next";
 
 export default function FundDashboard() {
   //======================   STATE & HOOKS   ===============================
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
@@ -49,7 +51,7 @@ export default function FundDashboard() {
           <Loader2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-primary animate-pulse" />
         </div>
         <p className="text-muted-foreground font-black text-xs uppercase tracking-[0.3em] animate-pulse">
-          Auditing financial records...
+          {t("funds.loading")}
         </p>
       </div>
     );
@@ -60,8 +62,8 @@ export default function FundDashboard() {
     <div className="max-w-[1600px] mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-20">
       {/* Page Header */}
       <AFPageHeader
-        title="Fiscal Intelligence"
-        description="Strategic monitoring of foundation liquidity, expenditure protocols, and audited fiscal trajectories."
+        title={t("funds.title")}
+        description={t("funds.description")}
       />
 
       {/* 💰 FINANCIAL SUMMARY OVERVIEW */}
@@ -71,9 +73,9 @@ export default function FundDashboard() {
       {requests && requests.length > 0 && (
          <div className="space-y-6">
             <AFSectionTitle 
-              title="Awaiting Authorization" 
-              subtitle="Pending expenditure requests requiring administrator verification before settlement."
-              badge="Protocol Queue"
+              title={t("funds.awaitingAuth")} 
+              subtitle={t("funds.awaitingDesc")}
+              badge={t("funds.protocolQueue")}
             />
             <ExpenseRequestTable requests={requests} isLoading={rLoading} />
          </div>
@@ -83,9 +85,9 @@ export default function FundDashboard() {
         {/* ➕ NEW TRANSACTION FORM (Left/Top) */}
         <div className="xl:col-span-2">
           <AFSectionTitle 
-            title="Register Transaction" 
-            subtitle="Initiate new fiscal entries into the foundation ledger. Expenses will require secondary approval."
-            badge="Ledger Entry"
+            title={t("funds.registerTransaction")} 
+            subtitle={t("funds.registerDesc")}
+            badge={t("funds.ledgerEntry")}
           />
           <AddTransactionForm
             onAdd={async (data: any) => await addTransaction(data).unwrap()}
@@ -96,55 +98,73 @@ export default function FundDashboard() {
         {/* 🛠️ REPORT GENERATION SETTINGS (Right) */}
         <div className="space-y-8">
            <AFSectionTitle 
-            title="Fiscal Controls" 
-            subtitle="Configure reporting protocols."
+            title={t("funds.controls")} 
+            subtitle={t("funds.controlsDesc")}
             className="mb-0"
           />
-          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-md border border-muted/20">
-            <CardHeader className="p-8 border-b border-muted/20 bg-primary/5">
-              <CardTitle className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-3 text-primary">
-                <Settings size={18} className="animate-spin-slow" />
-                Report Protocols
+          <Card className="border-none shadow-2xl rounded-3xl overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/5 backdrop-blur-md">
+            <CardHeader className="p-6 border-b border-primary/10 bg-gradient-to-r from-primary/10 to-emerald-500/10">
+              <CardTitle className="text-sm font-black uppercase tracking-wider flex items-center gap-3 text-primary">
+                <div className="p-2 bg-primary/10 rounded-xl">
+                  <FileText size={20} className="text-primary" />
+                </div>
+                <div>
+                  <div>{t("funds.reportProtocols")}</div>
+                  <p className="text-[10px] font-normal text-muted-foreground normal-case tracking-normal mt-1">
+                    Generate official financial report
+                  </p>
+                </div>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-8 space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                  Primary Signatory
+            <CardContent className="p-6 space-y-5">
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-foreground flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                  {t("funds.primarySignatory")}
                 </label>
                 <Input
-                  placeholder="e.g. Abdullah Al Mamun"
-                  className="rounded-2xl border-muted/30 focus:ring-primary/20 h-12 bg-background/50 font-bold"
+                  placeholder="Enter signatory name"
+                  className="rounded-xl border-2 border-muted/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 h-12 bg-background font-medium transition-all"
                   value={sigName}
                   onChange={(e) => setSigName(e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                  Official Designation
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-foreground flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                  {t("funds.officialDesignation")}
                 </label>
                 <Input
-                  placeholder="e.g. Chairman"
-                  className="rounded-2xl border-muted/30 focus:ring-primary/20 h-12 bg-background/50 font-bold"
+                  placeholder="Enter designation"
+                  className="rounded-xl border-2 border-muted/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 h-12 bg-background font-medium transition-all"
                   value={sigDesignation}
                   onChange={(e) => setSigDesignation(e.target.value)}
                 />
               </div>
-              <Button
-                onClick={() =>
-                  generateFundPDF(
-                    history || [],
-                    summary,
-                    sigName,
-                    sigDesignation,
-                  )
-                }
-                disabled={!sigName || !sigDesignation}
-                className="w-full h-14 bg-primary hover:scale-[1.02] active:scale-95 text-primary-foreground font-black rounded-2xl shadow-2xl shadow-primary/30 transition-all uppercase text-xs tracking-widest flex items-center justify-center gap-3"
-              >
-                <FileText size={20} />
-                Generate Audit PDF
-              </Button>
+              
+              <div className="pt-2">
+                <Button
+                  onClick={() =>
+                    generateFundPDF(
+                      history || [],
+                      summary,
+                      sigName,
+                      sigDesignation,
+                    )
+                  }
+                  disabled={!sigName || !sigDesignation}
+                  className="w-full h-14 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-600/90 disabled:from-muted disabled:to-muted text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 uppercase text-sm tracking-wider flex items-center justify-center gap-3 group"
+                >
+                  <FileText size={22} className="group-hover:scale-110 transition-transform" />
+                  {t("funds.generatePDF")}
+                </Button>
+              </div>
+
+              {(!sigName || !sigDesignation) && (
+                <p className="text-xs text-muted-foreground text-center bg-muted/30 rounded-lg p-3">
+                  Please fill in both fields to generate the report
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -153,9 +173,9 @@ export default function FundDashboard() {
       {/* 📊 TRANSACTION AUDIT HISTORY */}
       <div className="space-y-8">
         <AFSectionTitle 
-          title="Fiscal Audit Stream" 
-          subtitle="Comprehensive immutable log of all incoming and outgoing financial movements."
-          badge="Live Ledger"
+          title={t("funds.auditHistory")} 
+          subtitle={t("funds.auditDesc")}
+          badge={t("funds.ledgerEntry")}
         />
         <div className="rounded-[3rem] overflow-hidden bg-card/30 backdrop-blur-md border border-muted/20 shadow-2xl p-8">
           <TransactionTable
